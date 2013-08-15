@@ -4,6 +4,7 @@ import re
 import shlex
 import subprocess
 import time
+import getpass
 
 from .vnet import VirtualNet
 
@@ -60,13 +61,14 @@ class VirtualInterface():
         self.state='down'
 
     def ifconfig(self, cmd):
-        subprocess.call(shlex.split("ifconfig %s %s" % (self.tap, cmd))) 
+        subprocess.call(shlex.split("sudo ifconfig %s %s" % (self.tap, cmd))) 
 
 #if __name__='__main__':
 #    print('vif test:')
 
 def mktap(tap=None):
-    args = [ 'tunctl', '-u', 'libvirt-qemu']
+    print("creating %s for %s" % (tap, getpass.getuser()))
+    args = ['sudo', 'tunctl', '-u', getpass.getuser()]
     if tap:
         args.extend(['-t', tap])
 

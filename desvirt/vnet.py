@@ -31,10 +31,10 @@ class VirtualNet():
         self.brctl('delif %s %s' % (self.name, ifname))
 
     def brctl(self, command):
-        cmd = 'brctl %s' % command
+        cmd = 'sudo brctl %s' % command
         status = subprocess.call(shlex.split(cmd.encode("utf-8")))
     
     def ifconfig(self, command):
-        cmd = 'ifconfig %s %s' % (self.name, command)
+        cmd = 'sudo ifconfig %s %s' % (self.name, command)
         status = subprocess.call(shlex.split(cmd.encode("utf-8")))
 

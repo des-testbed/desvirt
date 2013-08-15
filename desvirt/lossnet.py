@@ -41,12 +41,12 @@ class LossyNet(VirtualNet):
         return self.mark_counter
 
     def ebtables(self, command):
-        cmd = 'ebtables %s' % command
+        cmd = 'sudo ebtables %s' % command
         #print(cmd)
         status = subprocess.call(shlex.split(cmd.encode("utf-8")))
 
     def tc(self, command):
-        cmd = 'tc %s' % command
+        cmd = 'sudo tc %s' % command
         #print(cmd)
         status = subprocess.call(shlex.split(cmd.encode("utf-8")))
 

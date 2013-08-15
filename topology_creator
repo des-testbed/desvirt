@@ -6,7 +6,7 @@ from optparse import OptionParser
 """
 Create the basic XML document
 """
-def create_basic_xml(identifier, desc):
+def create_basic_xml(identifier, desc, node_desc, radio_nic):
     
     dom_impl = xml.dom.minidom.getDOMImplementation()
     xmldoc = dom_impl.createDocument(None, "topology", None)
@@ -20,13 +20,13 @@ def create_basic_xml(identifier, desc):
     node_types          = xmldoc.createElement("nodeTypes")
 
     type_mesh_router    = xmldoc.createElement("nodeType")
-    type_mesh_router.setAttribute("name", "meshrouter")
+    type_mesh_router.setAttribute("name", node_desc)
 
     node_interfaces     = xmldoc.createElement("interfaces")
 
     wlan_interface      = xmldoc.createElement("interface")
-    wlan_interface.setAttribute("name", "wlan0")
-    wlan_interface.setAttribute("type", "802.11bg")
+    wlan_interface.setAttribute("name", radio_nic[0])
+    wlan_interface.setAttribute("type", radio_nic[1])
 
     top_element.appendChild(net_elem)
     net_elem.appendChild(node_types)
@@ -39,7 +39,7 @@ def create_basic_xml(identifier, desc):
 """
 Create all nodes for XML document
 """
-def create_nodes(xmldoc, topo_size, row_cnt=0, line_cnt=0):
+def create_nodes(xmldoc, topo_size, node_desc, row_cnt=0, line_cnt=0):
     node_names = []
     net_elem = xmldoc.getElementsByTagName("net")[0]
 
@@ -60,13 +60,13 @@ def create_nodes(xmldoc, topo_size, row_cnt=0, line_cnt=0):
     for name in node_names:
         node = xmldoc.createElement("node")
         node.setAttribute("name", name)
-        node.setAttribute("type", "meshrouter")
+        node.setAttribute("type", node_desc)
         all_nodes.appendChild(node)
 
 """
 Create all the links
 """
-def create_links(xmldoc, topo_size, topo_type, loss_rates, row_cnt=0, line_cnt=0):
+def create_links(xmldoc, topo_size, topo_type, loss_rates, radio_nic, row_cnt=0, line_cnt=0):
     net_elem = xmldoc.getElementsByTagName("net")[0]
 
     all_links = xmldoc.createElement("links")
@@ -83,9 +83,9 @@ def create_links(xmldoc, topo_size, topo_type, loss_rates, row_cnt=0, line_cnt=0
         for i in range(end_node):
             link = xmldoc.createElement("link")
             link.setAttribute("from_node", str(i))
-            link.setAttribute("from_if", "wlan0")
+            link.setAttribute("from_if", radio_nic[0])
             link.setAttribute("to_node", str((i+1)%topo_size))
-            link.setAttribute("to_if", "wlan0")
+            link.setAttribute("to_if", radio_nic[0])
             link.setAttribute("loss", str(loss_rates['default']))
             link.setAttribute("broadcast_loss", str(loss_rates['bcast']))
             link.setAttribute("uni", "false")
@@ -114,8 +114,8 @@ def create_links(xmldoc, topo_size, topo_type, loss_rates, row_cnt=0, line_cnt=0
                 for n in neighbors:
 
                     link = xmldoc.createElement("link")
-                    link.setAttribute("from_if", "wlan0")
-                    link.setAttribute("to_if", "wlan0")
+                    link.setAttribute("from_if", radio_nic[0])
+                    link.setAttribute("to_if", radio_nic[0])
                     link.setAttribute("broadcast_loss", str(loss_rates['bcast']))
                     link.setAttribute("uni", "false")
                     link.setAttribute("from_node", "%c%i" % (chr(97+i), j))
@@ -170,12 +170,27 @@ if __name__ == "__main__":
                         default = 0,
                         dest = "bcast_loss_rate",
                         help = "set the loss rate for a broadcast link in percent")
+    parser.add_option("-n", "--node-type",
+                        type = "string",
+                        default = "meshrouter",
+                        dest = "node_desc",
+                        help = "defines the node type (meshrouter or sensornode)")
+    parser.add_option("-r", "--radio-interface",
+                        type = "string",
+                        default = "wlan",
+                        dest = "radio_nic",
+                        help = "the name and type of the radio interface (wlan or ieee802154)")
     (options, args) = parser.parse_args()
 
     topo_type   = options.topo_type
     topo_size   = options.topo_size
     xmlfilename = options.xmlfilename
     desc        = options.description
+    node_desc   = options.node_desc
+    if options.radio_nic == "wlan":
+        radio_nic   = ("wlan0", "802.11bg")
+    else:
+        radio_nic   = ("cc2420", "802.15.4")
 
     loss_rates = dict()
     loss_rates['default'] = options.def_loss_rate * 0.01
@@ -203,9 +218,9 @@ if __name__ == "__main__":
         desc = "%i nodes in a regular %s %s" % (topo_size, geom, topo_type)
 
     ### create the xml document
-    xmldoc = create_basic_xml(xmlfilename, desc)
-    create_nodes(xmldoc, topo_size, row_cnt, line_cnt)
-    create_links(xmldoc, topo_size, topo_type, loss_rates, row_cnt, line_cnt)
+    xmldoc = create_basic_xml(xmlfilename, desc, node_desc, radio_nic)
+    create_nodes(xmldoc, topo_size, node_desc, row_cnt, line_cnt)
+    create_links(xmldoc, topo_size, topo_type, loss_rates, radio_nic, row_cnt, line_cnt)
 
     ### write xml to file
     filename = xmlfilename + ".xml"

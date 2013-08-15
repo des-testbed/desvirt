@@ -17,7 +17,7 @@ from desvirt import *
 
 from desvirt.xmltopology import XMLTopology
 
-
+in_testbed = False
 
 topo = None
 macs = None
@@ -25,8 +25,8 @@ taps = None
 
 management_net = vnet.VirtualNet('meshnet0', create=False)
 
-lib_dir = "/var/lib/desvirt"
-config_dir = "/etc/desvirt"
+lib_dir = ".vnet/lib/desvirt"
+config_dir = ".vnet/desvirt"
 
 class Topology():
     def __init__(self, name):     
@@ -156,10 +156,12 @@ def main():
                         help = "list all defined networks")
     (options, args) = parser.parse_args()
 
+    # list defined vnets and exit
     if options.list_defined:
         list_defined()
         sys.exit(0)
 
+    # some sanity checks
     if options.define:
         if options.undefine:
             print("Error: specify only one of \"--define\" and \"--undefine\".")
@@ -179,6 +181,7 @@ def main():
     global topo
     topo = Topology(base)
 
+    # check for existence of vnet
     lockfile = "%s/%s.lock" % (lib_dir,base)
     locked = check_lockfile(lockfile)
 
@@ -200,6 +203,7 @@ def main():
             print("Cannot undefine running network.")
             sys.exit(1)
 
+    # load information about MAC addresses and tap interfaces from file
     global macs
     macs = load_statefile("%s/%s.macs" % (lib_dir,base))
     if not macs:
@@ -211,6 +215,7 @@ def main():
     if not taps:
         taps = {}
 
+    # parse XML file
     xmltopo = XMLTopology(xmlfile)
     xmltopo.nodeHandler = nodeHandler
     xmltopo.nicHandler = nicHandler
@@ -225,14 +230,15 @@ def main():
         create_lockfile(lockfile, content="stopped")
 
         print("Setting up virtual topology %s..." % topo.name)
-        register_hostnames(topo.name, topo.nodes)
+        if in_testbed:
+            register_hostnames(topo.name, topo.nodes)
 
     if options.start:
         create_lockfile(lockfile, content="running")
         conn=libvirt.open('qemu:///system')
         for (name, node) in topo.nodes.items():
             node.define(conn)
-            node.start()
+            #node.start()
     
     if options.stop:
         create_lockfile(lockfile, content="stopped")
@@ -260,7 +266,8 @@ def main():
 
     if options.undefine:
         print("Undefining network...")
-        unregister_hostnames(topo.name)
+        if in_testbed:
+            unregister_hostnames(topo.name)
         os.remove(lockfile)
         print("Done.")
 
