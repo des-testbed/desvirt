@@ -1,10 +1,20 @@
 #desvirt
+DES-Virt is the DES Testbed virtualization framework.
 
-This repository contains desvirt, the DES Testbed virtualization framework.
-
-
-## Dependencies
-
+Dependencies
+------------
 When running under Debian squeeze, des-virt needs the following packages:
-kvm libvirt-bin python-libvirt vlan bridge-utils ebtables uml-utilities
 
+		kvm 
+		libvirt-bin 
+		python-libvirt 
+		vlan 
+		bridge-utils 
+		ebtables 
+		uml-utilities
+
+Bug tracker
+-----------
+Have a bug or feature request? Please create an issue here on GitHub!
+
+https://github.com/des-testbed/desvirt/issues
