@@ -1,5 +1,5 @@
 #desvirt
-DES-Virt is the DES Testbed virtualization framework.
+DES-Virt is the [DES Testbed](http://des-testbed.net/node/4) virtualization framework.
 
 Dependencies
 ------------
