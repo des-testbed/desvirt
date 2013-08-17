@@ -174,7 +174,7 @@ if __name__ == "__main__":
                         type = "string",
                         default = "meshrouter",
                         dest = "node_desc",
-                        help = "defines the node type (meshrouter or sensornode)")
+                        help = "defines the node type (meshrouter or riot_native)")
     parser.add_option("-r", "--radio-interface",
                         type = "string",
                         default = "wlan",

@@ -6,6 +6,9 @@ class VirtualNetException(Exception):
         def __init__(s, errorstr):
             s.message = "Virtual Net Error: %s " % errorstr
 
+"""
+defines a virtual net and bind it optionally to a bridge
+"""
 class VirtualNet():
     def __init__(self, name, create=False):
         self.name = name

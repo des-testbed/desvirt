@@ -1,6 +1,7 @@
 #!/usr/bin/python3.1
 
 import xml.dom.minidom
+import logging
 
 class XMLTopology():
     def __init__(self, filename):
@@ -75,11 +76,13 @@ class XMLTopology():
             n = None
             name = node.getAttribute('name')
             nodeType = node.getAttribute('type')
+            binary = node.getAttribute('binary')
+            logging.getLogger("").debug("Found node %s of type %s" % (name, nodeType))
             default_ifaces = self.nodetypes[nodeType]
             interfaces = []
             interfaces.extend(default_ifaces)
-            
-            n = self.nodeHandler(name)
+            logging.getLogger("").debug("Binary for %s is %s" % (name, binary))
+            n = self.nodeHandler(name, nodeType, binary)
             nodes.append(n)
 
             for interface in interfaces:

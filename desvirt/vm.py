@@ -8,10 +8,12 @@ import time
 import atexit
 import re
 import string
+import logging
 
 import random  
 from .vif import VirtualInterface
 from .vnet import VirtualNet
+from .riotnative import RIOT
 from string import Template
 
 import libvirt
@@ -27,59 +29,74 @@ class VMException(Exception):
             s.message = msg
 
 class VM():
-    def __init__(self, name, nics=None, vmgroup_name=""):
+    def __init__(self, name, nodeType, nics=None, binary=None, vmgroup_name=""):
         self.name = name
+        self.nodeType = nodeType
+        self.binary = binary
         self.nics = nics
         if not nics:
             self.nics = []
 
         self.vmgroup_name = vmgroup_name
-        self.vm = None
+        self.vm_instance = None
         
         self.fullname = self.name
         if self.vmgroup_name:
             self.fullname = "%s_%s" % (self.vmgroup_name, name)
 
 
-    def lookup(self, conn):
+    def lookup(self, conn=None):
         global all_domains
-        if not all_domains:
-            all_domains = {}
-            for id in conn.listDomainsID():
-               dom = conn.lookupByID(id)
-               all_domains[dom.name()] = dom
+        if self.nodeType == "meshrouter":
+            if not all_domains:
+                all_domains = {}
+                for id in conn.listDomainsID():
+                   dom = conn.lookupByID(id)
+                   all_domains[dom.name()] = dom
 
-            for id in conn.listDefinedDomains():
-               all_domains[id] = conn.lookupByName(id)
+                for id in conn.listDefinedDomains():
+                   all_domains[id] = conn.lookupByName(id)
        
-        try:
-            self.vm = all_domains[self.fullname]
-            #print("Domain %s already defined." % self.fullname)
-            self.conn = conn
-            return True
-        except libvirt.libvirtError:
-            return False
-        except KeyError:
-            return False
+            try:
+                self.vm_instance = all_domains[self.fullname]
+                logging.getLogger("").debug("Domain %s already defined." % self.fullname)
+                self.conn = conn
+                return True
+            except libvirt.libvirtError:
+                return False
+            except KeyError:
+                return False
 
-    def define(self, conn):
-        if not self.lookup(conn):
-            print("Defining VM %s" %(self.fullname))
-            self.vm = conn.defineXML(self.create_vm_xml())
+    def define(self, conn=None):
+        if self.nodeType == "meshrouter":
+            if not self.lookup(conn):
+                logging.getLogger("").info("Defining VM %s" %(self.fullname))
+                self.vm_instance = conn.defineXML(self.create_vm_xml())
+        else:
+            logging.getLogger("").info("Defining RIOT native process %s" % (self.fullname))
+            if not self.binary:
+                logging.getLogger("").error("No binary for RIOT native given. Exiting...")
+                sys.exit(1)
+            self.vm_instance = RIOT(self.binary, None, self.nics[0].tap)
 
-    def undefine(self, conn):
-        if self.vm or self.lookup(conn):
-            self.vm.undefine()
+    def undefine(self, conn=None):
+        # TODO: needs here anything to be done for RIOT native?
+        if self.nodeType == "meshrouter":
+            if self.vm_instance or self.lookup(conn):
+                self.vm_instance.undefine()
 
     def start(self):
-        if self.vm:
-            if not self.vm.isActive():
-                self.vm.create() 
+        if self.vm_instance:
+            if not self.vm_instance.isActive():
+                self.vm_instance.create()
 
     def stop(self):
-        if self.vm:
-            if self.vm.isActive():
-                self.vm.destroy()
+        if self.vm_instance:
+            if self.vm_instance.isActive():
+                self.vm_instance.destroy()
+
+    def getType(self):
+        return self.nodeType
 
     def create_interfaces_xml(self):
         if len(self.nics)<1:

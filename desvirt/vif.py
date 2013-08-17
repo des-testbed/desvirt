@@ -5,6 +5,7 @@ import shlex
 import subprocess
 import time
 import getpass
+import logging
 
 from .vnet import VirtualNet
 
@@ -44,12 +45,12 @@ class VirtualInterface():
             try:
                 self.down()
             except Exception as e:
-                print (e)
+                logging.getLogger("").logger.warn(e)
 
         for i in range(0,20):
             if rmtap(self.tap):
                 break
-#            print("tap %s busy, retrying..." % self.tap)
+            logging.getLogger("").debug("tap %s busy, retrying..." % self.tap)
             time.sleep(1)
 
     def up(self):
@@ -67,7 +68,7 @@ class VirtualInterface():
 #    print('vif test:')
 
 def mktap(tap=None):
-    print("creating %s for %s" % (tap, getpass.getuser()))
+    logging.getLogger("").info("creating %s for %s" % (tap, getpass.getuser()))
     args = ['sudo', 'tunctl', '-u', getpass.getuser()]
     if tap:
         args.extend(['-t', tap])
@@ -90,7 +91,7 @@ def mktap(tap=None):
     
 def rmtap(name):
     null = open('/dev/null', 'wb')
-    retcode = subprocess.call(['tunctl', '-d', name], stdout=null)
+    retcode = subprocess.call(['sudo', 'tunctl', '-d', name], stdout=null)
     null.close()
     return retcode == 0
 

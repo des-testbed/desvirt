@@ -1,8 +1,13 @@
 import subprocess
 import shlex
+import logging
 
 from .vnet import VirtualNet
 
+"""
+defines a virtual net with lossy links
+provides methods to configure the links using tc and ebtables
+"""
 class LossyNet(VirtualNet):
     def __init__(self, name, create=False):
         self.mark_counter = 0
@@ -27,7 +32,7 @@ class LossyNet(VirtualNet):
         self.ebtables('-X %s' % self.chain_name)
 
     def add_link(self, from_tap, to_tap, bandwidth='100mbit', packet_loss=0):
-        print("%s: New link from %s to %s, rate=%s, loss=%s" % (self.name, from_tap, to_tap, bandwidth, packet_loss))
+        logging.getLogger("").info("%s: New link from %s to %s, rate=%s, loss=%s" % (self.name, from_tap, to_tap, bandwidth, packet_loss))
 
         mark = self.get_mark()
         self.ebtables('-A %s -i %s -o %s -j mark --mark-set %d' % (self.chain_name, from_tap, to_tap, mark))
@@ -42,16 +47,16 @@ class LossyNet(VirtualNet):
 
     def ebtables(self, command):
         cmd = 'sudo ebtables %s' % command
-        #print(cmd)
+        logging.getLogger("").debug(cmd)
         status = subprocess.call(shlex.split(cmd.encode("utf-8")))
 
     def tc(self, command):
         cmd = 'sudo tc %s' % command
-        #print(cmd)
+        logging.getLogger("").debug(cmd)
         status = subprocess.call(shlex.split(cmd.encode("utf-8")))
 
     def addif(self, ifname, setup=True):
-#        print("Net %s adding if %s." %(self.name, ifname))
+        logging.getLogger("").debug("Net %s adding if %s." %(self.name, ifname))
         self.iflist.append(ifname)
         if setup:
             self.tc('qdisc add dev %s root handle 1: htb default 1' % ifname)
@@ -62,7 +67,7 @@ class LossyNet(VirtualNet):
             VirtualNet.addif(self,ifname)
 
     def delif(self, ifname):
-        #print("lossnet removing interface %s" %ifname)
+        logging.getLogger("").debug("lossnet removing interface %s" %ifname)
         self.tc("qdisc del dev %s root" % ifname)
         VirtualNet.delif(self,ifname)
 
