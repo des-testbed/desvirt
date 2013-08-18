@@ -12,6 +12,7 @@ When running under Debian squeeze, des-virt needs the following packages:
 		bridge-utils 
 		ebtables 
 		uml-utilities
+        tmux
 
 Bug tracker
 -----------
