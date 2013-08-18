@@ -39,7 +39,7 @@ def create_basic_xml(identifier, desc, node_desc, radio_nic):
 """
 Create all nodes for XML document
 """
-def create_nodes(xmldoc, topo_size, node_desc, row_cnt=0, line_cnt=0):
+def create_nodes(xmldoc, topo_size, node_desc, binary, row_cnt=0, line_cnt=0):
     node_names = []
     net_elem = xmldoc.getElementsByTagName("net")[0]
 
@@ -61,6 +61,7 @@ def create_nodes(xmldoc, topo_size, node_desc, row_cnt=0, line_cnt=0):
         node = xmldoc.createElement("node")
         node.setAttribute("name", name)
         node.setAttribute("type", node_desc)
+        node.setAttribute("binary", binary)
         all_nodes.appendChild(node)
 
 """
@@ -180,6 +181,11 @@ if __name__ == "__main__":
                         default = "wlan",
                         dest = "radio_nic",
                         help = "the name and type of the radio interface (wlan or ieee802154)")
+    parser.add_option("-e", "--binary-file",
+                        type = "string",
+                        default = "",
+                        dest = "binary",
+                        help = "the binary file for RIOT native")
     (options, args) = parser.parse_args()
 
     topo_type   = options.topo_type
@@ -219,7 +225,7 @@ if __name__ == "__main__":
 
     ### create the xml document
     xmldoc = create_basic_xml(xmlfilename, desc, node_desc, radio_nic)
-    create_nodes(xmldoc, topo_size, node_desc, row_cnt, line_cnt)
+    create_nodes(xmldoc, topo_size, node_desc, options.binary, row_cnt, line_cnt)
     create_links(xmldoc, topo_size, topo_type, loss_rates, radio_nic, row_cnt, line_cnt)
 
     ### write xml to file
