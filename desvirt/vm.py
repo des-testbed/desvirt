@@ -66,6 +66,10 @@ class VM():
                 return False
             except KeyError:
                 return False
+        elif self.nodeType == "riot_native":
+            logging.getLogger("Looking up this node")
+            self.vm_instance = RIOT(self.fullname, self.binary, self.vmgroup_name, self.nics[0].tap)
+            return True
 
     def define(self, conn=None):
         if self.nodeType == "meshrouter":
@@ -77,7 +81,7 @@ class VM():
             if not self.binary:
                 logging.getLogger("").error("No binary for RIOT native given. Exiting...")
                 sys.exit(1)
-            self.vm_instance = RIOT(self.binary, None, self.nics[0].tap)
+            self.vm_instance = RIOT(self.fullname, self.binary, self.vmgroup_name, self.nics[0].tap)
 
     def undefine(self, conn=None):
         # TODO: needs here anything to be done for RIOT native?
@@ -92,7 +96,9 @@ class VM():
 
     def stop(self):
         if self.vm_instance:
+            logging.getLogger("").debug("stopping %s" % self.name)
             if self.vm_instance.isActive():
+                logging.getLogger("").debug("destroying %s" % self.vm_instance.pid)
                 self.vm_instance.destroy()
 
     def getType(self):
