@@ -3,7 +3,7 @@ DES-Virt is the [DES-Testbed](http://des-testbed.net/node/4) virtualization fram
 
 Dependencies
 ------------
-When running under Debian squeeze, des-virt needs the following packages:
+When running under Debian stable, des-virt needs the following packages:
 
 		kvm 
 		libvirt-bin 
