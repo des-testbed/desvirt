@@ -3,16 +3,9 @@ DES-Virt is the [DES-Testbed](http://des-testbed.net/node/4) virtualization fram
 
 Dependencies
 ------------
-When running under Debian stable, des-virt needs the following packages:
+To install all required packages on Debian stable, run:
 
-		kvm 
-		libvirt-bin 
-		python-libvirt 
-		vlan 
-		bridge-utils 
-		ebtables 
-		uml-utilities
-        tmux
+	apt-get install kvm libvirt-bin python-libvirt vlan bridge-utils ebtables uml-utilities tmux
 
 Bug tracker
 -----------
