@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import os
 import xml.dom.minidom, math
 from optparse import OptionParser
 
@@ -224,7 +225,8 @@ if __name__ == "__main__":
         desc = "%i nodes in a regular %s %s" % (topo_size, geom, topo_type)
 
     ### create the xml document
-    xmldoc = create_basic_xml(xmlfilename, desc, node_desc, radio_nic)
+    identifier = os.path.basename(xmlfilename)
+    xmldoc = create_basic_xml(identifier, desc, node_desc, radio_nic)
     create_nodes(xmldoc, topo_size, node_desc, options.binary, row_cnt, line_cnt)
     create_links(xmldoc, topo_size, topo_type, loss_rates, radio_nic, row_cnt, line_cnt)
 
