@@ -121,11 +121,11 @@ def nodeHandler(name, nodeType, elf_file=None):
 
     return node
 
-def linkHandler(from_node, from_if, to_node, to_if, channel, rate, loss, uni_directional):
+def linkHandler(from_node, from_if, to_node, to_if, channel, rate, loss, delay, uni_directional):
     global options
     global topo
     global taps
-    logger.debug("linkHandler: from: %s:%s to: %s:%s loss: %s uni_directional: %s" % (from_node, from_if, to_node, to_if, loss, uni_directional))
+    logger.debug("linkHandler: from: %s:%s to: %s:%s loss: %s delay: %s uni_directional: %s" % (from_node, from_if, to_node, to_if, loss, delay, uni_directional))
 
     if not options.start:
         return
@@ -136,9 +136,9 @@ def linkHandler(from_node, from_if, to_node, to_if, channel, rate, loss, uni_dir
     if to_tap.net.name == from_tap.net.name:
         net = to_tap.net
         loss_percent = float(loss) * 100
-        net.add_link(from_tap.tap, to_tap.tap, packet_loss=loss_percent)
+        net.add_link(from_tap.tap, to_tap.tap, packet_loss=loss_percent, delay=float(delay))
         if not uni_directional:
-            net.add_link(to_tap.tap, from_tap.tap, packet_loss=loss_percent)
+            net.add_link(to_tap.tap, from_tap.tap, packet_loss=loss_percent, delay=float(delay))
 
 def usage():
     print("Usage: start_vnet <topology.xml>")

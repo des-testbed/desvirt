@@ -31,14 +31,14 @@ class LossyNet(VirtualNet):
         self.ebtables('-D FORWARD --logical-in %s -j %s' %(self.name, self.chain_name))
         self.ebtables('-X %s' % self.chain_name)
 
-    def add_link(self, from_tap, to_tap, bandwidth='100mbit', packet_loss=0):
-        logging.getLogger("").info("%s: New link from %s to %s, rate=%s, loss=%s" % (self.name, from_tap, to_tap, bandwidth, packet_loss))
+    def add_link(self, from_tap, to_tap, bandwidth='100mbit', packet_loss=0, delay=0):
+        logging.getLogger("").info("%s: New link from %s to %s, rate=%s, loss=%s, delay=%s" % (self.name, from_tap, to_tap, bandwidth, packet_loss, delay))
 
         mark = self.get_mark()
         self.ebtables('-A %s -i %s -o %s -j mark --mark-set %d' % (self.chain_name, from_tap, to_tap, mark))
 
         self.tc('class add dev %s parent 1:1 classid 1:%d htb rate %s ceil %s' %(to_tap, mark+10, bandwidth, bandwidth))
-        self.tc('qdisc add dev %s parent 1:%d netem loss %d%%' % (to_tap, mark+10, packet_loss))
+        self.tc('qdisc add dev %s parent 1:%d netem loss %d%% delay %dms' % (to_tap, mark+10, packet_loss, delay))
         self.tc('filter add dev %s parent 1: protocol all handle %d fw flowid 1:%d' % (to_tap, mark, mark+10))
 
     def get_mark(self):
