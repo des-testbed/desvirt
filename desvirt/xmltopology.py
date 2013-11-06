@@ -100,6 +100,10 @@ class XMLTopology():
             
             loss = link.getAttribute('loss')
 
+            delay = link.getAttribute('delay')
+            if not delay:
+                delay = 0
+
             linkType = link.getAttribute('linkType')
             if linkType:
                 (rates, channels) = self.linktypes[linkType]
@@ -111,7 +115,7 @@ class XMLTopology():
                 if uni_directional_str=="true":
                     uni_directional = True
 
-            self.linkHandler(from_node, from_if, to_node, to_if, None, None, loss, uni_directional)
+            self.linkHandler(from_node, from_if, to_node, to_if, None, None, loss, delay, uni_directional)
 
 #            print("link from_node: %s, to_node: %s type: %s" %(from_node, to_node, linkType))
 #            print(rates)
