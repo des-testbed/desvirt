@@ -10,6 +10,7 @@ class VirtualNetException(Exception):
 defines a virtual net and bind it optionally to a bridge
 """
 class VirtualNet():
+
     def __init__(self, name, create=False):
         self.name = name
         self.managed = create
@@ -38,6 +39,6 @@ class VirtualNet():
         status = subprocess.call(shlex.split(cmd.encode("utf-8")))
     
     def ifconfig(self, command):
-        cmd = 'sudo ifconfig %s %s' % (self.name, command)
+        cmd = 'sudo ip link set %s %s' % (self.name, command)
         status = subprocess.call(shlex.split(cmd.encode("utf-8")))
 

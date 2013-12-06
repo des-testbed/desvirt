@@ -26,6 +26,7 @@ in_testbed = False
 topo = None
 macs = None
 taps = None
+pids = None
 
 # if nodes of type 'meshrouter' are defined, we need libvirt
 need_libvirt = False
@@ -76,19 +77,19 @@ def nicHandler(name, net=None, node=None, mac=None):
             tap = taps[node.name][name]
             logger.debug("found a nic")
 
-    nic = vif.VirtualInterface(macaddr=mac,vmname=name,node=node,net=net,create=options.start, tap=tap)
+    nic = vif.VirtualInterface(macaddr=mac,nicname=name,node=node,net=net,create=options.start, tap=tap)
 
     if options.define:
         macs[node.name][name] = nic.macaddr
 
     if options.start:
-        logger.debug("add nic for node %s as %s" % (node.name, nic.vmname))
-        taps[node.name][nic.vmname] = nic
+        logger.debug("add nic for node %s as %s" % (node.name, nic.nicname))
+        taps[node.name][nic.nicname] = nic
     else:
         logger.debug("check if %s is in taps" % node.name)
         if node.name in taps:
-            if nic.vmname in taps[node.name]:
-                nic.tap = taps[node.name][nic.vmname].tap
+            if nic.nicname in taps[node.name]:
+                nic.tap = taps[node.name][nic.nicname].tap
 
     return nic
 
@@ -98,6 +99,7 @@ def nodeHandler(name, nodeType, elf_file=None):
     global management_net
     global logger
     global need_libvirt
+    global pids
 
     logger.debug("nodeHandler: %s of type %s" % (name, nodeType))
     logger.debug("looking in %s" % str(taps))
@@ -239,7 +241,7 @@ def main():
             logger.error("Cannot undefine running network.")
             sys.exit(1)
 
-    # load information about MAC addresses and tap interfaces from file
+    # load information about MAC addresses, tap interfaces and PIDs from file
     global macs
     macs = load_statefile("%s/%s.macs" % (lib_dir,base))
     if not macs:
@@ -250,6 +252,12 @@ def main():
         taps = load_statefile("%s/%s.taps" % (lib_dir,base))
     if not taps:
         taps = {}
+
+    global pids
+    if options.stop or options.undefine:
+        pids = load_statefile("%s/%s.pids" % (lib_dir,base))
+    if not pids:
+        pids = {}
 
     # parse XML file
     xmltopo = XMLTopology(xmlfile)
@@ -280,6 +288,11 @@ def main():
             else:
                 node.define()
             node.start()
+            logger.debug("Start VM with PID: %d" % node.vm_instance.pid)
+            if (node and node.vm_instance.pid):
+                logger.debug("Started VM with PID: %d" % node.vm_instance.pid)
+                pids[node.name] = node.vm_instance.pid
+
     
     if options.stop:
         create_lockfile(lockfile, content="stopped")
@@ -293,7 +306,11 @@ def main():
         logger.info("Shutting down nodes...")
         for (name, node) in list(topo.nodes.items()):
             node.lookup(conn)
-            logger.debug("stopping node %s %s" % (name, node.vm_instance))
+            logger.debug("stopping node %s %s" % (name, str(node.vm_instance)))
+            try:
+                node.vm_instance.pid = pids[name]
+            except AttributeError:
+                logger.warn("%s with %s  has no PID" % (name, elf_file))
             node.stop()
             node.undefine(conn)
     
@@ -305,6 +322,7 @@ def main():
                 nic.delete()
         
         os.remove("%s/%s.taps" % (lib_dir,base))
+        os.remove("%s/%s.pids" % (lib_dir,base))
 
         logger.info("Network stopped.")
 
@@ -320,6 +338,7 @@ def main():
 
     if options.start:
         save_statefile("%s/%s.taps" % (lib_dir,base), taps)
+        save_statefile("%s/%s.pids" % (lib_dir,base), pids)
 
 def load_statefile(filename):
     content = None
@@ -340,7 +359,7 @@ def taps_dict():
         node_taps = {}
         for nic in node.nics:
             if nic.tap:
-                node_taps[nic.vmname] = nic.tap
+                node_taps[nic.nicname] = nic.tap
         if len(node_taps):
             taps[node.fullname] = node_taps
 
@@ -354,7 +373,7 @@ def macs_dict():
         node_macs = {}
         for nic in node.nics:
             if nic.macaddr:
-                node_macs[nic.vmname] = nic.macaddr
+                node_macs[nic.nicname] = nic.macaddr
 
         if len(node_macs):
             macs[node.name] = node_macs
