@@ -4,21 +4,25 @@ import sys
 import socket
 import re
 
+reserved_ports = []
+
 def get_free_tcp_port(start_port=4711,logger=None):
     for i in range(1000):
-        try:
-            # AF_INET and SOCK_STREAM are default
-            s = socket.socket()
-            s.bind(('', start_port + i))
-            s.close()
-            logger.debug("Found free port at %d" % (start_port + i))
-            return (start_port + i)
-        except socket.error as oe:
-            if (oe.errno == 98):
-                logger.debug("Port %d is already in use, try another one" % (start_port + i))
-            else:
-                logger.error("Fatal error while searching a free TCP port: %s" % str(oe))
-                sys.exit(1)
+        if ((start_port + i) not in reserved_ports):
+            try:
+                # AF_INET and SOCK_STREAM are default
+                s = socket.socket()
+                s.bind(('', start_port + i))
+                s.close()
+                logger.debug("Found free port at %d" % (start_port + i))
+                reserved_ports.append(start_port + i)
+                return (start_port + i)
+            except socket.error as oe:
+                if (oe.errno == 98):
+                    logger.debug("Port %d is already in use, try another one" % (start_port + i))
+                else:
+                    logger.error("Fatal error while searching a free TCP port: %s" % str(oe))
+                    sys.exit(1)
 
 
 class RIOT():
