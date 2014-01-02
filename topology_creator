@@ -231,6 +231,7 @@ if __name__ == "__main__":
     create_links(xmldoc, topo_size, topo_type, loss_rates, radio_nic, row_cnt, line_cnt)
 
     ### write xml to file
-    filename = xmlfilename + ".xml"
+    filename = ".desvirt/" + xmlfilename + ".xml"
     fd = open(filename, 'w')
     xmldoc.writexml(fd, addindent="    ", newl="\n", encoding="UTF-8")
+    print("created: " + filename)
