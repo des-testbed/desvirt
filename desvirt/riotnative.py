@@ -1,8 +1,11 @@
+from __future__ import print_function
+
 import logging
 import subprocess
 import sys
 import socket
 import re
+import os
 
 reserved_ports = []
 
@@ -36,6 +39,7 @@ class RIOT():
         self.pid = None
 
         self.logger = logging.getLogger("")
+        self.routers_file = "./ports.list"
 
     def create(self):
         if self.tcp_port:
@@ -49,6 +53,11 @@ class RIOT():
             proc = subprocess.Popen(start_riot, shell=True)
             self.pid = proc.pid
             self.logger.info("PID: %d" % self.pid)
+
+            with open(self.routers_file, "a") as f:
+                print("port=" + str(port_number))
+                print(str(port_number), file=f)
+
         except subprocess.CalledProcessError:
             self.logger.error("creating RIOT native process failed")
             sys.exit(1)

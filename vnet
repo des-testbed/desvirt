@@ -284,6 +284,8 @@ def main():
             register_hostnames(topo.name, topo.nodes)
 
     if options.start:
+        os.remove("./ports.list")
+        logger.debug("removed ports.lock")
         create_lockfile(lockfile, content="running")
         if need_libvirt:
             myconn = libvirt.open('qemu:///system')
