@@ -96,7 +96,7 @@ class VM():
 
     def stop(self):
         if self.vm_instance:
-            logging.getLogger("").debug("stopping %s" % self.name)
+            logging.getLogger("").debug("stopping %s (%s)" % (self.name, self.vm_instance.pid))
             if self.vm_instance.isActive():
                 logging.getLogger("").debug("destroying %s" % self.vm_instance.pid)
                 self.vm_instance.destroy()

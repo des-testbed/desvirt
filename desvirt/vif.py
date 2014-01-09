@@ -6,24 +6,35 @@ import subprocess
 import time
 import getpass
 import logging
+import sys
 
 from .vnet import VirtualNet
 
 class VirtualInterface():
-    def __init__(self, macaddr=None, up=True, net=None, vmname=None,create=True,node=None,tap=None):
+    def __init__(self, macaddr=None, up=True, net=None, nicname=None,create=True,node=None,tap=None):
         self.tap = tap
 
         if create:
+            if (tap == None):
+                if (node.name == None):
+                    logging.getLogger("").logger.error("Cannot create tap for non-existent VM")
+                    sys.exit(1)
+                if (net == None):
+                    logging.getLogger("").logger.warn("Something strange is going on, net is undefined while creating tap for %s" % node.name)
+                    tap = "desvirt_%s" % node.name
+                else:
+                    tap = "%s_%s" % (net.name, node.name)
+
             self.tap = mktap(tap)
-            
+
         self.state = 'down'
-        self.vmname = vmname
+        self.nicname = nicname
 
         if not macaddr:
             macaddr = genmac()
 
         self.macaddr = macaddr
-        
+
         if up and create:
             self.up()
 
@@ -62,44 +73,33 @@ class VirtualInterface():
         self.state='down'
 
     def ifconfig(self, cmd):
-        subprocess.call(shlex.split("sudo ifconfig %s %s" % (self.tap, cmd))) 
+        subprocess.call(shlex.split("sudo ip link set %s %s" % (self.tap, cmd)))
 
 #if __name__='__main__':
 #    print('vif test:')
 
 def mktap(tap=None):
     logging.getLogger("").info("creating %s for %s" % (tap, getpass.getuser()))
-    args = ['sudo', 'tunctl', '-u', getpass.getuser()]
+
+    args = ['sudo', 'ip', 'tuntap', 'add', 'mode', 'tap', 'user', getpass.getuser()]
     if tap:
-        args.extend(['-t', tap])
+        args.extend(['dev', tap])
+    logging.getLogger("").info("Creating tap: %s" % tap)
+    subprocess.call(args, stdout=subprocess.PIPE)
 
-    p = subprocess.Popen(args, stdout=subprocess.PIPE)
-    (stdout, stderr) = p.communicate()
-
-    if p.poll() != 0:
-        return None
-
-    if tap:
-        return tap
-
-    output = stdout.encode('utf-8')
-    
-    re_tap = re.compile("^Set '(?P<tap>.+)' persistent and owned by uid (?P<uid>[0-9]+)$")
-    m = re_tap.match(output)
-
-    return m.group('tap')
+    return tap
     
 def rmtap(name):
     null = open('/dev/null', 'wb')
-    retcode = subprocess.call(['sudo', 'tunctl', '-d', name], stdout=null)
+    retcode = subprocess.call(['sudo', 'ip', 'tuntap', 'del', name, 'mode', 'tap'], stdout=null)
     null.close()
     return retcode == 0
 
 def genmac():
-    mac = [ 0x50, 0x51, 0x52,  
-    random.randint(0x00, 0x7f),  
-    random.randint(0x00, 0xff),  
-    random.randint(0x00, 0xff) ]  
+    mac = [ 0x50, 0x51, 0x52,
+    random.randint(0x00, 0x7f),
+    random.randint(0x00, 0xff),
+    random.randint(0x00, 0xff) ]
 
     return (':'.join(map(lambda x: "%02x" % x, mac)))
 
