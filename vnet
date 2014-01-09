@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 
 import os
 import signal
@@ -274,7 +274,7 @@ def main():
         create_lockfile(lockfile, content="running")
         if need_libvirt:
             myconn = libvirt.open('qemu:///system')
-        for (name, node) in topo.nodes.items():
+        for (name, node) in list(topo.nodes.items()):
             if node.getType() == "meshrouer":
                 node.define(conn=myconn)
             else:
@@ -285,13 +285,13 @@ def main():
         create_lockfile(lockfile, content="stopped")
         
         logger.info("Shutting down bridge and links...") 
-        for (name, net) in topo.nets.items():
+        for (name, net) in list(topo.nets.items()):
             net.delete()
         if need_libvirt:
             conn = libvirt.open('qemu:///system')
         
         logger.info("Shutting down nodes...")
-        for (name, node) in topo.nodes.items():
+        for (name, node) in list(topo.nodes.items()):
             node.lookup(conn)
             logger.debug("stopping node %s %s" % (name, node.vm_instance))
             node.stop()
@@ -299,7 +299,7 @@ def main():
     
         # delay tap deletion by one second, otherwise they are still busy
         time.sleep(1)
-        for (name, node) in topo.nodes.items():
+        for (name, node) in list(topo.nodes.items()):
             logger.debug("deleting nics from node %s" % (node.name))
             for nic in node.nics:
                 nic.delete()
@@ -329,14 +329,14 @@ def load_statefile(filename):
         statefile.close()
         logger.info("Loaded statefile %s." % filename)
     except IOError:
-        logger.warn("No statefile found.")
+        logger.warn("No statefile found: %s." % filename)
     finally:
         return content
 
 def taps_dict():
     global topo
     taps = {}
-    for (name, node) in topo.nodes.items():
+    for (name, node) in list(topo.nodes.items()):
         node_taps = {}
         for nic in node.nics:
             if nic.tap:
@@ -350,7 +350,7 @@ def macs_dict():
     global topo
     macs = {}
     
-    for (name, node) in topo.nodes.items():
+    for (name, node) in list(topo.nodes.items()):
         node_macs = {}
         for nic in node.nics:
             if nic.macaddr:
@@ -371,7 +371,7 @@ def register_hostnames(network_name, nodes):
     netcfg = "%s.netcfg" % network_name
     netcfg_file = open(netcfg, 'wb')
 
-    for (key, node) in nodes.items():
+    for (key, node) in list(nodes.items()):
         netcfg_file.write("%s %s %s\n" % (node.nics[0].macaddr, node.fullname, node.nics[1].macaddr))
 
     netcfg_file.close()
@@ -423,14 +423,14 @@ def list_defined():
     global lib_dir
     files = os.listdir(lib_dir.encode('utf-8'))
     if len(files):
-        print("%-20s State" % ("Network Name"))
+        print(("%-20s State" % ("Network Name")))
         print("----------------------------")
     for name in files:
         if name.endswith('.lock'):
             with open("%s/%s" % (lib_dir, name)) as f:
                 for line in f:
                     state = line.rstrip()
-                    print("%-20s %s" % (name[:-5],state))
+                    print(("%-20s %s" % (name[:-5],state)))
                     break
 
 if __name__ == '__main__':
