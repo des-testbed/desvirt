@@ -56,8 +56,8 @@ class RIOT():
 
             with open(self.routers_file, "a") as f:
                 position = self.tap.split("_", 1)[1] #a1..e7
-                x = ord(position[0]) - ord('a') #0..4
-                y = int(position[1]) - 1 #0..4
+                x = ord(position[0]) - ord('a') + 1 #1..5
+                y = int(position[1]) #1..5
                 print(str(x) + "," + str(y) + "," + str(port_number), file=f)
 
         except subprocess.CalledProcessError:
