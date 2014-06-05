@@ -9,7 +9,7 @@ To install all required packages on Debian or Ubuntu, run:
 
 To install all required packages on Fedora or Redhat, run:
 
-	yum install kvm libvirt libvirt-python vconfig bridge ebtables uml_utilities tmux
+	yum install kvm libvirt libvirt-python vconfig bridge ebtables uml_utilities
 
 Bug tracker
 -----------
