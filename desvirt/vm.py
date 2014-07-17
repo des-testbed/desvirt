@@ -16,7 +16,10 @@ from .vnet import VirtualNet
 from .riotnative import RIOT
 from string import Template
 
-import libvirt
+try:
+    import libvirt
+except:
+    print "libvirt not found, you won't be able to work with qemu"
 import hashlib
 
 all_domains = None

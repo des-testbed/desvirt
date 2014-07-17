@@ -10,7 +10,10 @@ import atexit
 import shlex
 import logging
 
-import libvirt
+try:
+    import libvirt
+except:
+    print "libvirt not found, you won't be able to work with qemu"
 import pickle
 from optparse import OptionParser
 
