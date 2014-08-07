@@ -77,12 +77,13 @@ class XMLTopology():
             name = node.getAttribute('name')
             nodeType = node.getAttribute('type')
             binary = node.getAttribute('binary')
+            tcp_port = node.getAttribute('tcp_port')
             logging.getLogger("").debug("Found node %s of type %s" % (name, nodeType))
             default_ifaces = self.nodetypes[nodeType]
             interfaces = []
             interfaces.extend(default_ifaces)
-            logging.getLogger("").debug("Binary for %s is %s" % (name, binary))
-            n = self.nodeHandler(name, nodeType, binary)
+            logging.getLogger("").debug("Binary for %s is %s, TCP port is %s" % (name, binary, tcp_port))
+            n = self.nodeHandler(name, nodeType, binary, tcp_port)
             nodes.append(n)
 
             for interface in interfaces:

@@ -32,10 +32,11 @@ class VMException(Exception):
             s.message = msg
 
 class VM():
-    def __init__(self, name, nodeType, nics=None, binary=None, vmgroup_name=""):
+    def __init__(self, name, nodeType, nics=None, binary=None, tcp_port=None, vmgroup_name=""):
         self.name = name
         self.nodeType = nodeType
         self.binary = binary
+        self.tcp_port = tcp_port
         self.nics = nics
         if not nics:
             self.nics = []
@@ -71,7 +72,7 @@ class VM():
                 return False
         elif self.nodeType == "riot_native":
             logging.getLogger("Looking up this node")
-            self.vm_instance = RIOT(self.fullname, self.binary, self.vmgroup_name, self.nics[0].tap)
+            self.vm_instance = RIOT(self.fullname, self.binary, self.tcp_port, self.vmgroup_name, self.nics[0].tap)
             return True
 
     def define(self, conn=None):
@@ -84,7 +85,7 @@ class VM():
             if not self.binary:
                 logging.getLogger("").error("No binary for RIOT native given. Exiting...")
                 sys.exit(1)
-            self.vm_instance = RIOT(self.fullname, self.binary, self.vmgroup_name, self.nics[0].tap)
+            self.vm_instance = RIOT(self.fullname, self.binary, self.tcp_port, self.vmgroup_name, self.nics[0].tap)
 
     def undefine(self, conn=None):
         # TODO: needs here anything to be done for RIOT native?
