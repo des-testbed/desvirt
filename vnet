@@ -96,7 +96,7 @@ def nicHandler(name, net=None, node=None, mac=None):
 
     return nic
 
-def nodeHandler(name, nodeType, elf_file=None):
+def nodeHandler(name, nodeType, elf_file=None, tcp_port=None):
     global topo
     global taps
     global management_net
@@ -112,7 +112,7 @@ def nodeHandler(name, nodeType, elf_file=None):
     if not name in macs:
         macs[name] = {}
 
-    node = vm.VM(name, nodeType, binary=elf_file, vmgroup_name=topo.name)
+    node = vm.VM(name, nodeType, binary=elf_file, tcp_port=tcp_port, vmgroup_name=topo.name)
 
     if nodeType == "meshrouter":
         need_libvirt = True

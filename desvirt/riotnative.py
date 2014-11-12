@@ -27,9 +27,10 @@ def get_free_tcp_port(start_port=4711,logger=None):
 
 class RIOT():
 
-    def __init__(self, fullname, binary, session_name, tap):
+    def __init__(self, fullname, binary, tcp_port, session_name, tap):
         self.fullname = fullname
         self.binary = binary
+        self.tcp_port = tcp_port
         self.session_name = session_name
         self.tap = tap
         self.pid = None
@@ -37,7 +38,10 @@ class RIOT():
         self.logger = logging.getLogger("")
 
     def create(self):
-        port_number = get_free_tcp_port(logger=self.logger)
+        if self.tcp_port:
+            port_number = int(self.tcp_port)
+        else:
+            port_number = get_free_tcp_port(logger=self.logger)
         start_riot = "%s %s -t %d -d" % (self.binary, self.tap, port_number)
         self.logger.info("Start the RIOT: %s" % start_riot)
         try:
