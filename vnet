@@ -30,6 +30,7 @@ topo = None
 macs = None
 taps = None
 pids = None
+riot_instance_id = 1
 
 # if nodes of type 'meshrouter' are defined, we need libvirt
 need_libvirt = False
@@ -103,6 +104,7 @@ def nodeHandler(name, nodeType, elf_file=None, tcp_port=None):
     global logger
     global need_libvirt
     global pids
+    global riot_instance_id
 
     logger.debug("nodeHandler: %s of type %s" % (name, nodeType))
     logger.debug("looking in %s" % str(taps))
@@ -112,7 +114,8 @@ def nodeHandler(name, nodeType, elf_file=None, tcp_port=None):
     if not name in macs:
         macs[name] = {}
 
-    node = vm.VM(name, nodeType, binary=elf_file, tcp_port=tcp_port, vmgroup_name=topo.name)
+    node = vm.VM(name, nodeType, binary=elf_file, tcp_port=tcp_port, vmgroup_name=topo.name, riot_instance_id=riot_instance_id)
+    riot_instance_id += 1
 
     if nodeType == "meshrouter":
         need_libvirt = True
