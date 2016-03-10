@@ -42,13 +42,12 @@ class RIOT():
             port_number = int(self.tcp_port)
         else:
             port_number = get_free_tcp_port(logger=self.logger)
-        start_riot = "%s %s -t %d -d" % (self.binary, self.tap, port_number)
+        start_riot = "socat EXEC:'%s %s',end-close,stderr,pty TCP-L:%d,reuseaddr,fork" \
+                     % (self.binary, self.tap, port_number)
         self.logger.info("Start the RIOT: %s" % start_riot)
         try:
-            output = subprocess.check_output(start_riot, shell=True)
-            re_riot = re.compile("^RIOT pid: (?P<pid>[0-9]+)$")
-            m = re_riot.match(output)
-            self.pid = int(m.group('pid'))
+            proc = subprocess.Popen(start_riot, shell=True)
+            self.pid = proc.pid
             self.logger.info("PID: %d" % self.pid)
         except subprocess.CalledProcessError:
             self.logger.error("creating RIOT native process failed")
@@ -58,7 +57,7 @@ class RIOT():
 
     def destroy(self):
         self.logger.info("Kill the RIOT: %s (%s)" % (self.binary, self.pid))
-        kill_string = ['kill %d' % self.pid]
+        kill_string = ['pkill -f -9 "%s %s"' % (self.binary, self.tap)]
         if subprocess.call(kill_string, stderr=subprocess.PIPE, shell=True):
             self.logger.error("killing RIOT native process failed")
             sys.exit(1)
