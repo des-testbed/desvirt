@@ -5,6 +5,19 @@ import xml.dom.minidom, math
 from optparse import OptionParser
 
 """
+converts int to 'a'-'z''aa'-'zz' ...
+"""
+def int2col(n):
+    res = ""
+    while True:
+        mod = n % 26
+        res = chr(97 + mod) + res
+        n = int((n - mod)/26)
+        if n <= 0:
+            break
+    return res
+
+"""
 Create the basic XML document
 """
 def create_basic_xml(identifier, desc, node_desc, radio_nic):
@@ -51,7 +64,7 @@ def create_nodes(xmldoc, topo_size, node_desc, binary, row_cnt=0, line_cnt=0):
     if (row_cnt > 0) and (line_cnt > 0):
         for i in range(0, row_cnt):
             for j in range(1, line_cnt+1):
-               node_names.append("%i-%i" % (i, j))
+               node_names.append("%s-%i" % (int2col(i), j))
     
     ### create any other topology
     else:
@@ -120,12 +133,12 @@ def create_links(xmldoc, topo_size, topo_type, loss_rates, radio_nic, row_cnt=0,
                     link.setAttribute("to_if", radio_nic[0])
                     link.setAttribute("broadcast_loss", str(loss_rates['bcast']))
                     link.setAttribute("uni", "false")
-                    link.setAttribute("from_node", "%i-%i" % (i, j))
+                    link.setAttribute("from_node", "%s-%i" % (int2col(i), j))
                    
                     row_offset = n[0]
                     line_offset = n[1]
                     
-                    link.setAttribute("to_node", "%i-%i" % ((i+row_offset), (j+line_offset)))
+                    link.setAttribute("to_node", "%s-%i" % ((int2col(i+row_offset)), (j+line_offset)))
                     ### diagonal link
                     if (row_offset != 0) and (line_offset != 0):
                         link.setAttribute("loss", str(loss_rates['high']))
