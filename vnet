@@ -265,17 +265,21 @@ def main():
         pids = {}
 
     # parse XML file
-    xmltopo = XMLTopology(xmlfile)
-    xmltopo.logger = logger
-    xmltopo.nodeHandler = nodeHandler
-    xmltopo.nicHandler = nicHandler
-    xmltopo.netHandler = netHandler
-    xmltopo.linkHandler = linkHandler
-    
-    xmltopo.parse()
+    try:
+        xmltopo = XMLTopology(xmlfile)
+        xmltopo.logger = logger
+        xmltopo.nodeHandler = nodeHandler
+        xmltopo.nicHandler = nicHandler
+        xmltopo.netHandler = netHandler
+        xmltopo.linkHandler = linkHandler
+
+        xmltopo.parse()
+    except:
+        logger.error("Couldn't find topology %s, please run ./topology_creator first!", options.topology_name)
+        sys.exit(1)
 
     logger.info("Network Name: %s" % topo.name)
-    
+
     if options.define:
         create_lockfile(lockfile, content="stopped")
 
