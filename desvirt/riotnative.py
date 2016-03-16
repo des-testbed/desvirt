@@ -57,8 +57,11 @@ class RIOT():
             with open(self.routers_file, "a") as f:
                 position = self.tap.split("_", 1)[1] #a1..e7
                 x = ord(position[0]) - ord('a') + 1 #1..5
-                y = int(position[1]) #1..5
-                print(str(x) + "," + str(y) + "," + str(port_number), file=f)
+                if (len(position) > 1):
+                    y = int(position[1]) #1..5
+                    print(str(x) + "," + str(y) + "," + str(port_number), file=f)
+                else:
+                    print(str(x) + "," + str(port_number), file=f)
 
         except subprocess.CalledProcessError:
             self.logger.error("creating RIOT native process failed")
