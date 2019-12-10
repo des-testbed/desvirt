@@ -5,7 +5,7 @@ Dependencies
 ------------
 To install all required packages on Debian or Ubuntu, run:
 
-	apt-get install kvm libvirt-bin python-libvirt vlan bridge-utils ebtables
+	apt-get install qemu-kvm libvirt-bin python-libvirt vlan bridge-utils ebtables socat
 
 To install all required packages on Fedora or Redhat, run:
 
