@@ -36,9 +36,9 @@ class VirtualNet():
 
     def brctl(self, command):
         cmd = 'sudo brctl %s' % command
-        status = subprocess.call(shlex.split(cmd.encode("utf-8")))
+        status = subprocess.call(shlex.split(cmd))
     
     def ifconfig(self, command):
         cmd = 'sudo ip link set %s %s' % (self.name, command)
-        status = subprocess.call(shlex.split(cmd.encode("utf-8")))
+        status = subprocess.call(shlex.split(cmd))
 
