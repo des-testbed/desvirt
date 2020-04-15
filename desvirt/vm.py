@@ -19,7 +19,7 @@ from string import Template
 try:
     import libvirt
 except:
-    print "libvirt not found, you won't be able to work with qemu"
+    print("libvirt not found, you won't be able to work with qemu")
 import hashlib
 
 all_domains = None

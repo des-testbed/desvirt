@@ -101,5 +101,5 @@ def genmac():
     random.randint(0x00, 0xff),
     random.randint(0x00, 0xff) ]
 
-    return (':'.join(map(lambda x: "%02x" % x, mac)))
+    return (':'.join(["%02x" % x for x in mac]))
 
