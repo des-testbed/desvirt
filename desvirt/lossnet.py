@@ -48,12 +48,12 @@ class LossyNet(VirtualNet):
     def ebtables(self, command):
         cmd = 'sudo ebtables %s' % command
         logging.getLogger("").debug(cmd)
-        status = subprocess.call(shlex.split(cmd.encode("utf-8")))
+        status = subprocess.call(shlex.split(cmd))
 
     def tc(self, command):
         cmd = 'sudo tc %s' % command
         logging.getLogger("").debug(cmd)
-        status = subprocess.call(shlex.split(cmd.encode("utf-8")))
+        status = subprocess.call(shlex.split(cmd))
 
     def addif(self, ifname, setup=True):
         logging.getLogger("").debug("Net %s adding if %s." %(self.name, ifname))

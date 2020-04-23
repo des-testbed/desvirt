@@ -1,4 +1,4 @@
-#!/usr/bin/python3.1
+#!/usr/bin/python3
 
 import xml.dom.minidom
 import logging
@@ -46,7 +46,7 @@ class XMLTopology():
         if linkTypes:
             for linkType in self.findNodes(linkTypes, 'linkType'):
                name = linkType.getAttribute('name')
-               print("linkType: %s" % name)
+               print(("linkType: %s" % name))
                rates = self.parseRates(self.findNode(linkType, 'rates'))
                channels = self.parseChannels(self.findNode(linkType, 'channels'))
                self.linktypes[name] = (rates, channels)
@@ -56,7 +56,7 @@ class XMLTopology():
         for channel_node in self.findNodes(xmlnode, 'channel'):
             name = channel_node.getAttribute('name')
             channels.append(name)
-            print("\tchannel: %s" % name)
+            print(("\tchannel: %s" % name))
 
         return channels
 
@@ -66,7 +66,7 @@ class XMLTopology():
             name = rate.getAttribute('name')
             netto = rate.getAttribute('netto')
             loss = rate.getAttribute('loss')
-            print ("\trate: %s netto_rate: %s loss: %s" % (name, netto, loss))
+            print(("\trate: %s netto_rate: %s loss: %s" % (name, netto, loss)))
             rates.append((name,netto,loss))
         return rates
 

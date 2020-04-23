@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import os
 import signal
@@ -13,7 +13,7 @@ import logging
 try:
     import libvirt
 except:
-    print "libvirt not found, you won't be able to work with qemu"
+    print("libvirt not found, you won't be able to work with qemu")
 import pickle
 from optparse import OptionParser
 
