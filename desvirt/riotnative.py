@@ -74,7 +74,6 @@ class RIOT():
         kill_string = ['pkill -f -9 "%s %s"' % (self.binary, self.tap)]
         if subprocess.call(kill_string, stderr=subprocess.PIPE, shell=True):
             self.logger.error("killing RIOT native process failed")
-            sys.exit(1)
         self.is_active = False
 
     def isActive(self):
