@@ -72,7 +72,8 @@ class RIOT():
     def destroy(self):
         self.logger.info("Kill the RIOT: %s (%s)" % (self.binary, self.pid))
         kill_string = ['pkill -f -9 "%s %s"' % (self.binary, self.tap)]
-        if subprocess.call(kill_string, stderr=subprocess.PIPE, shell=True):
+        process = subprocess.call(kill_string, stderr=subprocess.PIPE, shell=True)
+        if process != -9:
             self.logger.error("killing RIOT native process failed")
         self.is_active = False
 
