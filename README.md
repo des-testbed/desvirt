@@ -1,8 +1,9 @@
-#desvirt
-DES-Virt is the [DES-Testbed](http://des-testbed.net/node/4) virtualization framework.
+# desvirt
 
-Dependencies
-------------
+DES-Virt is the DES-Testbed virtualization framework.
+
+## Dependencies
+
 To install all required packages on Debian or Ubuntu, run:
 
 	apt-get install qemu-kvm libvirt-bin python-libvirt vlan bridge-utils ebtables socat
@@ -11,28 +12,22 @@ To install all required packages on Fedora or Redhat, run:
 
 	yum install kvm libvirt libvirt-python vconfig bridge ebtables uml_utilities
 
-Bug tracker
------------
+## Bug tracker
+
 Have a bug or feature request? Please create an issue here on GitHub!
 
 https://github.com/des-testbed/desvirt/issues
 
-HOWTO
-=====
+## HOWTO
 
-setup desvirt
--------------
-
+### Detup desvirt
 Run `./setup.py build install` to build and install desvirt on your machine.
 
 In case you want to use desvirt with [RIOT](https://github.com/RIOT-OS/RIOT) nodes: `./topology_creator --node-type riot_native --binary-file ../projects/ccn-lite-client/bin/ccn-lite-client.elf --size 9`
 
 
-create topology
----------------
-
+### Create topology
 To create a topology run `./topology_creator` which creates a 2x2 grid w/o loss `.desvirt/grid2x2.xml` (default).
-
 ```
 ./topology_creator -h
 Usage: topology_creator [options]
@@ -64,11 +59,9 @@ Options:
                         the binary file for RIOT native
 ```
 
-setup topology
---------------
+### Setup topology
 
 `./vnet --define --name "grid3x3"`
-
 
 To run a topology run `./vnet --start --name "grid3x3"` which starts the grid.
 
