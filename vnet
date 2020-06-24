@@ -298,7 +298,7 @@ def main():
         if need_libvirt:
             myconn = libvirt.open('qemu:///system')
         for (name, node) in list(topo.nodes.items()):
-            if node.getType() == "meshrouer":
+            if node.getType() == "meshrouter":
                 node.define(conn=myconn)
             else:
                 node.define()
