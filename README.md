@@ -20,7 +20,7 @@ https://github.com/des-testbed/desvirt/issues
 
 ## HOWTO
 
-### Detup desvirt
+### Setup desvirt
 Run `./setup.py build install` to build and install desvirt on your machine.
 
 In case you want to use desvirt with [RIOT](https://github.com/RIOT-OS/RIOT) nodes: `./topology_creator --node-type riot_native --binary-file ../projects/ccn-lite-client/bin/ccn-lite-client.elf --size 9`
