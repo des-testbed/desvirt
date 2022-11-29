@@ -325,7 +325,7 @@ def main():
             try:
                 node.vm_instance.pid = pids[name]
             except AttributeError:
-                logger.warn("%s with %s  has no PID" % (name, elf_file))
+                logger.warning("%s with %s  has no PID" % (name, elf_file))
             node.stop()
             node.undefine(conn)
     
@@ -363,7 +363,7 @@ def load_statefile(filename):
         statefile.close()
         logger.info("Loaded statefile %s." % filename)
     except IOError:
-        logger.warn("No statefile found: %s." % filename)
+        logger.warning("No statefile found: %s." % filename)
     finally:
         return content
 
@@ -413,11 +413,11 @@ def register_hostnames(network_name, nodes):
     retcode = subprocess.call(shlex.split(("scp -i /home/virt/.ssh/id_rsa %s vmnet@uhu:/testbed/tftpboot/hostnames/" % netcfg).encode('utf-8')))
 
     if retcode != 0:
-        logger.warn("Error registering hostnames!")
+        logger.warning("Error registering hostnames!")
     else:
         retcode = update_hostnames()
         if retcode != 0:
-            logger.warn("Error registering hostnames!")
+            logger.warning("Error registering hostnames!")
     
 def unregister_hostnames(network_name):
 
@@ -460,11 +460,11 @@ def list_defined():
         print(("%-20s State" % ("Network Name")))
         print("----------------------------")
     for name in files:
-        if name.endswith('.lock'):
-            with open("%s/%s" % (lib_dir, name)) as f:
+        if name.endswith('.lock'.encode()):
+            with open("%s/%s" % (lib_dir, name.decode())) as f:
                 for line in f:
                     state = line.rstrip()
-                    print(("%-20s %s" % (name[:-5],state)))
+                    print(("%-20s %s" % (name[:-5].decode(),state)))
                     break
 
 if __name__ == '__main__':
